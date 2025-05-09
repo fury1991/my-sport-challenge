@@ -14,13 +14,11 @@ import {
 } from "@/lib/calculatePoints";
 import { formatGermanDate } from "@/lib/formatDate";
 
-const poppins = Poppins({ subsets: ["latin"], weight: "700" });
 export default function Home() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   useEffect(() => {
-    console.log('Firebase Project ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
     const fetchData = async () => {
       const athleteCol = collection(db, "athletes");
       const athleteSnap = await getDocs(athleteCol);

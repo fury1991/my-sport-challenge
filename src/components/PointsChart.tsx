@@ -67,7 +67,7 @@ export default function PointsChart({ athletes }: Props) {
 
   // Diagramm-Daten vorbereiten
   const chartData = allDates.map((date) => {
-    const entry: { [key: string]: any } = { date };
+    const entry: Record<string, number | string> = { date: formatGermanDate(date) };
     athletes.forEach((athlete) => {
       entry[athlete.name] = parseFloat(
         formatPoints(athleteProgress[athlete.name][formatGermanDate(date)] ?? 0)
