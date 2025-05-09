@@ -55,7 +55,6 @@ export default function Home() {
       }
 
       setAthletes(athleteData);
-      console.log("Athleten geladen:", athleteData);
 
       // Abruf des letzten Aktualisierungsdatums
       const statusDoc = await getDoc(doc(db, "metadata", "status"));

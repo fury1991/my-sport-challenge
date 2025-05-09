@@ -14,8 +14,24 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Fatty Forward",
   description: "Verfolge die Punkte für deine sportlichen fetten Freunde 🚴‍♂️🏃‍♀️",
+  openGraph: {
+    title: "Fatty Forward",
+    description:
+      "Verfolge die Punkte für deine sportlichen fetten Freunde 🚴‍♂️🏃‍♀️",
+    url: "https://profurie.de",
+    siteName: "Fatty Forward",
+    images: [
+      {
+        url: "/preview.jpg",
+        width: 180,
+        height: 180,
+        alt: "Fatty Forward Vorschau",
+      },
+    ],
+    type: "website",
+  },
   icons: {
-    icon: "/favicon.ico", // or any other image like /logo.svg, /favicon.png, etc.
+    icon: "/favicon.ico",
   },
 };
 

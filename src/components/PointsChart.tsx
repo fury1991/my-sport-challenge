@@ -36,7 +36,6 @@ export default function PointsChart({ athletes }: Props) {
   const allDates = Array.from(allDatesSet).sort(
     (a, b) => a.getTime() - b.getTime()
   );
-  console.log(allDates);
 
   // Für jeden Athleten Verlauf über alle Daten berechnen
   const athleteProgress: { [name: string]: { [date: string]: number } } = {};
