@@ -29,3 +29,14 @@ export function getActivityIcon(type: string): string {
       return "❓";
   }
 }
+
+export function getActivityDisplay(type: string): string {
+  switch (type.toLowerCase()) {
+    case "laufen":
+      return "Laufen";
+    case "fahrrad":
+      return "Radeln";
+    default:
+      return "Unbekannt";
+  }
+}

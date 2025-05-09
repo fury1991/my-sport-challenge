@@ -9,6 +9,7 @@ import { Activity, Athlete } from "@/lib/types";
 import {
   calculatePoints,
   formatPoints,
+  getActivityDisplay,
   getActivityIcon,
 } from "@/lib/calculatePoints";
 import { formatGermanDate } from "@/lib/formatDate";
@@ -139,7 +140,9 @@ export default function Home() {
                         {getActivityIcon(activity.type)}
                       </span>
                       <div>
-                        <p className="text-md font-semibold">{activity.type}</p>
+                        <p className="text-md font-semibold">
+                          {getActivityDisplay(activity.type)}
+                        </p>
                         <p className="text-sm text-gray-500">
                           {formatGermanDate(activity.date)}
                         </p>
