@@ -1,6 +1,5 @@
 "use client";
 
-import { Poppins } from "next/font/google";
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
