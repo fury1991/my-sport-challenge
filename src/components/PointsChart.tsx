@@ -66,7 +66,9 @@ export default function PointsChart({ athletes }: Props) {
 
   // Diagramm-Daten vorbereiten
   const chartData = allDates.map((date) => {
-    const entry: Record<string, number | string> = { date: formatGermanDate(date) };
+    const entry: Record<string, number | string> = {
+      date: formatGermanDate(date),
+    };
     athletes.forEach((athlete) => {
       entry[athlete.name] = parseFloat(
         formatPoints(athleteProgress[athlete.name][formatGermanDate(date)] ?? 0)
@@ -84,7 +86,7 @@ export default function PointsChart({ athletes }: Props) {
         <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
         <XAxis
           dataKey="date"
-          tickFormatter={(date) => formatGermanDateShort(new Date(date))}
+          tickFormatter={formatGermanDateShort}
           angle={-30}
           textAnchor="end"
           height={60}
