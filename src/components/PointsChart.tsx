@@ -13,18 +13,21 @@ import {
 import { Athlete } from "@/lib/types";
 import { calculatePoints, formatPoints } from "@/lib/calculatePoints";
 import { formatGermanDate, substringDate } from "@/lib/formatDate";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   athletes: Athlete[];
 };
 
 export default function PointsChart({ athletes }: Props) {
-  const initialVisibility = Object.fromEntries(
-    athletes.map((a) => [a.name, true])
-  );
-  const [visibleLines, setVisibleLines] =
-    useState<Record<string, boolean>>(initialVisibility);
+  const [visibleLines, setVisibleLines] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (athletes.length > 0) {
+      setVisibleLines(Object.fromEntries(athletes.map((a) => [a.name, true])));
+    }
+  }, [athletes]);
+
   const allDatesSet = new Set<Date>();
 
   // Add Start & Now
