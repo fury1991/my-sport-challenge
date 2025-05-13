@@ -12,13 +12,19 @@ import {
 } from "recharts";
 import { Athlete } from "@/lib/types";
 import { calculatePoints, formatPoints } from "@/lib/calculatePoints";
-import { formatGermanDate, formatGermanDateShort } from "@/lib/formatDate";
+import { formatGermanDate, substringDate } from "@/lib/formatDate";
+import { useState } from "react";
 
 type Props = {
   athletes: Athlete[];
 };
 
 export default function PointsChart({ athletes }: Props) {
+  const initialVisibility = Object.fromEntries(
+    athletes.map((a) => [a.name, true])
+  );
+  const [visibleLines, setVisibleLines] =
+    useState<Record<string, boolean>>(initialVisibility);
   const allDatesSet = new Set<Date>();
 
   // Add Start & Now
@@ -70,8 +76,8 @@ export default function PointsChart({ athletes }: Props) {
       date: formatGermanDate(date),
     };
     athletes.forEach((athlete) => {
-      entry[athlete.name] = parseFloat(
-        formatPoints(athleteProgress[athlete.name][formatGermanDate(date)] ?? 0)
+      entry[athlete.name] = formatPoints(
+        athleteProgress[athlete.name][formatGermanDate(date)] ?? 0
       );
     });
     return entry;
@@ -86,7 +92,7 @@ export default function PointsChart({ athletes }: Props) {
         <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
         <XAxis
           dataKey="date"
-          tickFormatter={formatGermanDateShort}
+          tickFormatter={substringDate}
           angle={-30}
           textAnchor="end"
           height={60}
@@ -101,18 +107,36 @@ export default function PointsChart({ athletes }: Props) {
           }}
           labelStyle={{ color: "#374151", fontWeight: 500 }}
         />
-        <Legend wrapperStyle={{ paddingTop: 12 }} />
-        {athletes.map((athlete, index) => (
-          <Line
-            key={athlete.name}
-            type="monotone"
-            dataKey={athlete.name}
-            stroke={`hsl(${(index * 60) % 360}, 70%, 50%)`}
-            strokeWidth={2}
-            dot={{ r: 3 }}
-            activeDot={{ r: 6 }}
-          />
-        ))}
+        <Legend
+          payload={athletes.map((athlete, index) => ({
+            id: athlete.name,
+            value: athlete.name,
+            type: "line",
+            color: `hsl(${(index * 60) % 360}, 70%, 50%)`,
+            inactive: !visibleLines[athlete.name],
+          }))}
+          onClick={(e) => {
+            const name = e.value as string;
+            setVisibleLines((prev) => ({
+              ...prev,
+              [name]: !prev[name],
+            }));
+          }}
+          wrapperStyle={{ paddingTop: 12, cursor: "pointer" }}
+        />
+        {athletes.map((athlete, index) =>
+          visibleLines[athlete.name] ? (
+            <Line
+              key={athlete.name}
+              type="monotone"
+              dataKey={athlete.name}
+              stroke={`hsl(${(index * 60) % 360}, 70%, 50%)`}
+              strokeWidth={2}
+              dot={{ r: 3 }}
+              activeDot={{ r: 6 }}
+            />
+          ) : null
+        )}
       </LineChart>
     </ResponsiveContainer>
   );

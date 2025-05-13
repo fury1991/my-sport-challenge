@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PointsChart from "@/components/PointsChart";
 import { Activity, Athlete } from "@/lib/types";
 import {
@@ -17,6 +16,11 @@ import { formatGermanDate } from "@/lib/formatDate";
 export default function Home() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [activeAthleteId, setActiveAthleteId] = useState<string | null>(null);
+
+  const handleToggle = (id: string) => {
+    setActiveAthleteId((prev) => (prev === id ? null : id));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,8 +87,10 @@ export default function Home() {
       )}
 
       {/* Leaderboard */}
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-2">🏆 Aktueller Stand</h2>
+      <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
+        <h2 className="text-xl font-semibold flex items-center mb-3 text-gray-800">
+          🏆 <span className="ml-2">Aktueller Stand</span>
+        </h2>
         <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-left">
           <thead className="bg-gray-100">
             <tr>
@@ -111,64 +117,81 @@ export default function Home() {
       </section>
 
       {/* Aktivitäten als Tabs */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-4">🗓️ Aktivitäten</h2>
-        <Tabs defaultValue={athletes[0]?.id} className="w-full">
-          <TabsList className="flex flex-wrap justify-start overflow-x-auto">
-            {athletes.map((athlete) => (
-              <TabsTrigger
-                key={athlete.id}
-                value={athlete.id}
-                className="capitalize"
-              >
-                {athlete.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+      <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
+        <h2 className="text-xl font-semibold flex items-center mb-3 text-gray-800">
+          🗓️ <span className="ml-2">Aktivitäten</span>
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Klicke auf einen Namen, um die Aktivitäten anzuzeigen oder
+          auszublenden.
+        </p>
 
+        <div className="flex flex-wrap gap-2 mb-4">
           {athletes.map((athlete) => (
-            <TabsContent key={athlete.id} value={athlete.id}>
-              <ul className="space-y-3 mt-4">
-                {athlete.activities.map((activity, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <span className="text-2xl">
-                        {getActivityIcon(activity.type)}
-                      </span>
-                      <div>
-                        <p className="text-md font-semibold">
-                          {getActivityDisplay(activity.type)}
-                        </p>
+            <button
+              key={athlete.id}
+              onClick={() => handleToggle(athlete.id)}
+              className={`capitalize px-4 py-2 rounded-full transition font-medium ${
+                activeAthleteId === athlete.id
+                  ? "bg-sky-500 text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              {athlete.name}
+            </button>
+          ))}
+        </div>
+
+        {athletes.map((athlete) =>
+          activeAthleteId === athlete.id ? (
+            <div key={athlete.id} className="mt-4">
+              {athlete.activities.length === 0 ? (
+                <p className="text-gray-500 italic">
+                  Keine Aktivitäten vorhanden.
+                </p>
+              ) : (
+                <ul className="space-y-3">
+                  {athlete.activities.map((activity, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <span className="text-2xl">
+                          {getActivityIcon(activity.type)}
+                        </span>
+                        <div>
+                          <p className="text-md font-semibold">
+                            {getActivityDisplay(activity.type)}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatGermanDate(activity.date)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-md">{activity.distance} km</p>
                         <p className="text-sm text-gray-500">
-                          {formatGermanDate(activity.date)}
+                          (
+                          {formatPoints(
+                            calculatePoints(activity.type, activity.distance)
+                          )}{" "}
+                          Punkte)
                         </p>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-md">{activity.distance} km</p>
-                      <p className="text-sm text-gray-500">
-                        (
-                        {formatPoints(
-                          calculatePoints(activity.type, activity.distance)
-                        )}{" "}
-                        Punkte)
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </TabsContent>
-          ))}
-        </Tabs>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null
+        )}
       </section>
 
       {/* Punkteverlauf */}
-      <section className="bg-gray-50 p-6 rounded-xl shadow-inner">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-          📈 Punkteverlauf
+      <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
+        <h2 className="text-xl font-semibold flex items-center mb-3 text-gray-800">
+          📈 <span className="ml-2">Punkteverlauf</span>
         </h2>
         <PointsChart athletes={athletes} />
       </section>

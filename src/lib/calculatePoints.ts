@@ -16,6 +16,7 @@ export function calculatePoints(type: string, distance: number): number {
 }
 
 export function formatPoints(points: number): string {
+  if (points == 0) return "0";
   return points.toFixed(2);
 }
 
