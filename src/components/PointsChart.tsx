@@ -28,21 +28,29 @@ export default function PointsChart({ athletes }: Props) {
     }
   }, [athletes]);
 
-  const allDatesSet = new Set<Date>();
+  const allDatesMap = new Map<string, Date>();
 
-  // Add Start & Now
-  allDatesSet.add(new Date("2024-03-01"));
-  allDatesSet.add(new Date());
+  // Hilfsfunktion zum Hinzufügen, nur wenn das formatierte Datum noch nicht drin ist
+  const addDateIfNew = (date: Date) => {
+    const key = formatGermanDate(date);
+    if (!allDatesMap.has(key)) {
+      allDatesMap.set(key, date);
+    }
+  };
 
-  // Add All Dates
+  // Start & Now hinzufügen
+  addDateIfNew(new Date("2024-05-18"));
+  addDateIfNew(new Date());
+
+  // Alle Aktivitätsdaten prüfen
   athletes.forEach((athlete) => {
     athlete.activities.forEach((activity) => {
-      allDatesSet.add(activity.date);
+      addDateIfNew(activity.date);
     });
   });
 
-  // Sort Dates Ascending
-  const allDates = Array.from(allDatesSet).sort(
+  // Nach Datum sortieren
+  const allDates = Array.from(allDatesMap.values()).sort(
     (a, b) => a.getTime() - b.getTime()
   );
 
@@ -95,7 +103,9 @@ export default function PointsChart({ athletes }: Props) {
         <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
         <XAxis
           dataKey="date"
-          tickFormatter={substringDate}
+          tickFormatter={(value, index) =>
+            index === 0 ? "" : substringDate(value)
+          }
           angle={-30}
           textAnchor="end"
           height={60}
