@@ -11,7 +11,7 @@ import {
   getActivityDisplay,
   getActivityIcon,
 } from "@/lib/calculatePoints";
-import { formatGermanDate } from "@/lib/formatDate";
+import { formatGermanDate, formatGermanDateLong } from "@/lib/formatDate";
 
 export default function Home() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
@@ -82,7 +82,7 @@ export default function Home() {
 
       {lastUpdate && (
         <p className="text-sm text-gray-500 text-center mb-8">
-          Letzte Aktualisierung: {formatGermanDate(lastUpdate)}
+          Letzte Aktualisierung: {formatGermanDateLong(lastUpdate)}
         </p>
       )}
 
