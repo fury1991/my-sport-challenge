@@ -87,12 +87,17 @@ export default function PointsChart({ athletes }: Props) {
       date: formatGermanDate(date),
     };
     athletes.forEach((athlete) => {
-      entry[athlete.name] = formatPoints(
-        athleteProgress[athlete.name][formatGermanDate(date)] ?? 0
-      );
+      entry[athlete.name] =
+        athleteProgress[athlete.name][formatGermanDate(date)] ?? 0;
     });
     return entry;
   });
+
+  const maxY = Math.max(
+    ...chartData.flatMap((entry) =>
+      athletes.map((athlete) => entry[athlete.name] as number)
+    )
+  );
 
   return (
     <ResponsiveContainer width="100%" height={400}>
@@ -111,8 +116,13 @@ export default function PointsChart({ athletes }: Props) {
           height={60}
           tick={{ fontSize: 12, fill: "#6b7280" }}
         />
-        <YAxis tick={{ fontSize: 12, fill: "#6b7280" }} allowDecimals={false} />
+        <YAxis
+          tick={{ fontSize: 12, fill: "#6b7280" }}
+          allowDecimals={false}
+          domain={[0, Math.ceil(maxY + 10)]}
+        />
         <Tooltip
+          formatter={(value: number) => formatPoints(value)}
           contentStyle={{
             backgroundColor: "#f9fafb",
             borderRadius: 8,
