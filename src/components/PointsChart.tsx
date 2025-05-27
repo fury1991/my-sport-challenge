@@ -119,7 +119,7 @@ export default function PointsChart({ athletes }: Props) {
         <YAxis
           tick={{ fontSize: 12, fill: "#6b7280" }}
           allowDecimals={false}
-          domain={[0, Math.ceil(maxY + 10)]}
+          domain={[0, Math.ceil((maxY + 6) / 10) * 10]}
         />
         <Tooltip
           formatter={(value: number) => formatPoints(value)}
