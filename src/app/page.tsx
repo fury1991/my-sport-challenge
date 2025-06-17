@@ -57,7 +57,7 @@ export default function Home() {
 
         athleteData.push({ id: athleteId, name, activities, totalPoints });
       }
-
+      athleteData.sort((a, b) => b.totalPoints - a.totalPoints);
       setAthletes(athleteData);
 
       // Abruf des letzten Aktualisierungsdatums
@@ -84,6 +84,24 @@ export default function Home() {
         <p className="text-sm text-gray-500 text-center mb-8">
           Letzte Aktualisierung: {formatGermanDateLong(lastUpdate)}
         </p>
+      )}
+
+      {/* Winner */}
+      {new Date() >= new Date("2025-06-30") && athletes.length > 0 && (
+        <section className="mb-10 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-md">
+          <div className="flex items-center space-x-4">
+            <div className="text-5xl animate-spin-slow">🏆</div>
+            <div>
+              <h2 className="text-2xl font-bold text-yellow-700">
+                Gewinner: {athletes[0].name}
+              </h2>
+              <p className="text-md text-yellow-600">
+                Mit {formatPoints(athletes[0].totalPoints)} Punkten – So viele
+                Punkte – das war kein Sport, das war eine Machtdemonstration.
+              </p>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Leaderboard */}
