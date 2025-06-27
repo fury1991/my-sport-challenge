@@ -87,22 +87,23 @@ export default function Home() {
       )}
 
       {/* Winner */}
-      {new Date() >= new Date("2025-06-30") && athletes.length > 0 && (
-        <section className="mb-10 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-md">
-          <div className="flex items-center space-x-4">
-            <div className="text-5xl animate-spin-slow">🏆</div>
-            <div>
-              <h2 className="text-2xl font-bold text-yellow-700">
-                Gewinner: {athletes[0].name}
-              </h2>
-              <p className="text-md text-yellow-600">
-                Mit {formatPoints(athletes[0].totalPoints)} Punkten – So viele
-                Punkte – das war kein Sport, das war eine Machtdemonstration.
-              </p>
+      {new Date().getTime() >= Date.UTC(2025, 5, 30, 20, 0, 0) &&
+        athletes.length > 0 && (
+          <section className="mb-10 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-md">
+            <div className="flex items-center space-x-4">
+              <div className="text-5xl animate-spin-slow">🏆</div>
+              <div>
+                <h2 className="text-2xl font-bold text-yellow-700">
+                  Gewinner: {athletes[0].name}
+                </h2>
+                <p className="text-md text-yellow-600">
+                  Mit {formatPoints(athletes[0].totalPoints)} Punkten – So viele
+                  Punkte – das war kein Sport, das war eine Machtdemonstration.
+                </p>
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
       {/* Leaderboard */}
       <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
