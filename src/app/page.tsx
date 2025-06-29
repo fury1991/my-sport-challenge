@@ -97,8 +97,7 @@ export default function Home() {
                   Gewinner: {athletes[0].name}
                 </h2>
                 <p className="text-md text-yellow-600">
-                  Mit {formatPoints(athletes[0].totalPoints)} Punkten – So viele
-                  Punkte – das war kein Sport, das war eine Machtdemonstration.
+                  Mit {formatPoints(athletes[0].totalPoints)} Punkten!
                 </p>
               </div>
             </div>
