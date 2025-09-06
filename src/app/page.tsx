@@ -24,7 +24,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const athleteCol = collection(db, "athletes");
+      const athleteCol = collection(db, "athletes2025q3");
       const athleteSnap = await getDocs(athleteCol);
 
       const athleteData: Athlete[] = [];
@@ -35,7 +35,7 @@ export default function Home() {
 
         const activitiesCol = collection(
           db,
-          `athletes/${athleteId}/activities`
+          `athletes2025q3/${athleteId}/activities`
         );
         const activitiesSnap = await getDocs(activitiesCol);
 
@@ -87,7 +87,7 @@ export default function Home() {
       )}
 
       {/* Winner */}
-      {new Date().getTime() >= Date.UTC(2025, 5, 30, 20, 0, 0) &&
+      {new Date().getTime() >= Date.UTC(2025, 10, 26, 20, 0, 0) &&
         athletes.length > 0 && (
           <section className="mb-10 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-md">
             <div className="flex items-center space-x-4">

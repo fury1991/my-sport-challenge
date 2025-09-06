@@ -39,7 +39,7 @@ export default function PointsChart({ athletes }: Props) {
   };
 
   // Start & Now hinzufügen
-  addDateIfNew(new Date("2024-05-18"));
+  addDateIfNew(new Date("2024-09-05"));
 
   // Alle Aktivitätsdaten prüfen
   athletes.forEach((athlete) => {
