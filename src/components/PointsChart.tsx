@@ -17,9 +17,11 @@ import { useEffect, useState } from "react";
 
 type Props = {
   athletes: Athlete[];
+  startDate?: Date | null;
+  endDate?: Date | null;
 };
 
-export default function PointsChart({ athletes }: Props) {
+export default function PointsChart({ athletes, startDate, endDate }: Props) {
   const [visibleLines, setVisibleLines] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -30,7 +32,6 @@ export default function PointsChart({ athletes }: Props) {
 
   const allDatesMap = new Map<string, Date>();
 
-  // Hilfsfunktion zum Hinzufügen, nur wenn das formatierte Datum noch nicht drin ist
   const addDateIfNew = (date: Date) => {
     const key = formatGermanDate(date);
     if (!allDatesMap.has(key)) {
@@ -38,22 +39,43 @@ export default function PointsChart({ athletes }: Props) {
     }
   };
 
-  // Start & Now hinzufügen
-  addDateIfNew(new Date("2024-09-05"));
+  const today = new Date();
 
-  // Alle Aktivitätsdaten prüfen
+  // 🔹 Add one day before start date (baseline at 0)
+  if (startDate && today.getTime() >= startDate.getTime()) {
+    const dayBeforeStart = new Date(startDate);
+    dayBeforeStart.setDate(dayBeforeStart.getDate() - 1);
+    addDateIfNew(dayBeforeStart);
+  }
+
+  // 🔹 Add "today" only if inside [startDate, endDate]
+  if (
+    startDate &&
+    today.getTime() >= startDate.getTime() &&
+    endDate &&
+    today.getTime() <= endDate.getTime()
+  ) {
+    addDateIfNew(today);
+  }
+
+  // 🔹 Add endDate only when the challenge is already over
+  if (endDate && today.getTime() > endDate.getTime()) {
+    addDateIfNew(endDate);
+  }
+
+  // Add all activity dates
   athletes.forEach((athlete) => {
     athlete.activities.forEach((activity) => {
       addDateIfNew(activity.date);
     });
   });
 
-  // Nach Datum sortieren
+  // Sort dates
   const allDates = Array.from(allDatesMap.values()).sort(
     (a, b) => a.getTime() - b.getTime()
   );
 
-  // Für jeden Athleten Verlauf über alle Daten berechnen
+  // Calculate progress for each athlete
   const athleteProgress: { [name: string]: { [date: string]: number } } = {};
 
   athletes.forEach((athlete) => {
@@ -80,7 +102,7 @@ export default function PointsChart({ athletes }: Props) {
     athleteProgress[athlete.name] = progress;
   });
 
-  // Diagramm-Daten vorbereiten
+  // Build chart data
   const chartData = allDates.map((date) => {
     const entry: Record<string, number | string> = {
       date: formatGermanDate(date),

@@ -13,18 +13,56 @@ import {
 } from "@/lib/calculatePoints";
 import { formatGermanDate, formatGermanDateLong } from "@/lib/formatDate";
 
+type ChallengeOption = {
+  label: string;
+  name: string;
+};
+
 export default function Home() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [activeAthleteId, setActiveAthleteId] = useState<string | null>(null);
+  const [activeChallenge, setActiveChallenge] = useState<string | null>(null);
+  const [availableChallenges, setAvailableChallenges] = useState<
+    ChallengeOption[]
+  >([]);
+  const [challengeStart, setChallengeStart] = useState<Date | null>(null);
+  const [challengeEnd, setChallengeEnd] = useState<Date | null>(null);
+  const [challengeDone, setChallengeDone] = useState<boolean>(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
 
-  const handleToggle = (id: string) => {
+  const handleToggleAthlete = (id: string) => {
     setActiveAthleteId((prev) => (prev === id ? null : id));
   };
 
+  // 🔹 Load available challenges + current challenge
   useEffect(() => {
+    const loadChallenges = async () => {
+      const currentDoc = await getDoc(doc(db, "metadata", "current"));
+      const availableDoc = await getDoc(doc(db, "metadata", "available"));
+
+      const currentChallenge = currentDoc.exists()
+        ? currentDoc.data().name
+        : null;
+
+      const challenges: ChallengeOption[] = availableDoc.exists()
+        ? availableDoc.data().list || []
+        : [];
+
+      setActiveChallenge(currentChallenge);
+      setAvailableChallenges(challenges);
+    };
+
+    loadChallenges();
+  }, []);
+
+  // 🔹 Load data for active challenge
+  useEffect(() => {
+    if (!activeChallenge) return;
+
     const fetchData = async () => {
-      const athleteCol = collection(db, "athletes2025q3");
+      // Athletes
+      const athleteCol = collection(db, activeChallenge);
       const athleteSnap = await getDocs(athleteCol);
 
       const athleteData: Athlete[] = [];
@@ -35,41 +73,47 @@ export default function Home() {
 
         const activitiesCol = collection(
           db,
-          `athletes2025q3/${athleteId}/activities`
+          `${activeChallenge}/${athleteId}/activities`
         );
         const activitiesSnap = await getDocs(activitiesCol);
 
         const activities: Activity[] = activitiesSnap.docs.map((doc) => {
           const data = doc.data();
           return {
-            date: data.date?.toDate(), // Datum als `Date`-Objekt
+            date: data.date?.toDate(),
             type: data.type,
             distance: data.distance,
           };
         });
 
-        // **Sortiere Aktivitäten korrekt nach Datum (aufsteigend)**
-        activities.sort((a, b) => a.date.getTime() - b.date.getTime()); // Verwenden von `getTime()` für den Vergleich
+        activities.sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        const totalPoints = activities.reduce((sum, act) => {
-          return sum + calculatePoints(act.type, act.distance);
-        }, 0);
+        const totalPoints = activities.reduce(
+          (sum, act) => sum + calculatePoints(act.type, act.distance),
+          0
+        );
 
         athleteData.push({ id: athleteId, name, activities, totalPoints });
       }
+
       athleteData.sort((a, b) => b.totalPoints - a.totalPoints);
       setAthletes(athleteData);
 
-      // Abruf des letzten Aktualisierungsdatums
-      const statusDoc = await getDoc(doc(db, "metadata", "status"));
-      const lastUpdateTimestamp = statusDoc.exists()
-        ? statusDoc.data().lastUpdate
-        : null;
-      setLastUpdate(lastUpdateTimestamp?.toDate() ?? null);
+      // 🔹 Metadata for this challenge
+      const challengeMetaDoc = await getDoc(
+        doc(db, "metadata", activeChallenge)
+      );
+      if (challengeMetaDoc.exists()) {
+        const data = challengeMetaDoc.data();
+        setChallengeStart(data.start?.toDate() ?? null);
+        setChallengeEnd(data.end?.toDate() ?? null);
+        setLastUpdate(data.status?.toDate() ?? null);
+        setChallengeDone(data.done ?? false);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [activeChallenge]);
 
   return (
     <main className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
@@ -86,8 +130,66 @@ export default function Home() {
         </p>
       )}
 
+      {/* 🔹 Challenge Selector */}
+      {availableChallenges.length > 0 && (
+        <div className="mb-8 text-center">
+          <label className="mr-2 font-medium text-gray-700">Challenge:</label>
+          <select
+            value={activeChallenge || ""}
+            onChange={(e) => setActiveChallenge(e.target.value)}
+            className="border rounded-lg px-3 py-2 shadow-sm"
+          >
+            {availableChallenges.map((ch) => (
+              <option key={ch.name} value={ch.name}>
+                {ch.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* 🔹 Zeitraum Section */}
+      {challengeStart && challengeEnd && (
+        <section className="mb-6 bg-gray-50 p-4 rounded-xl shadow-sm text-center">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">
+            📅 Zeitraum
+          </h2>
+          <p className="text-sm text-gray-600">
+            {formatGermanDateLong(challengeStart)} –{" "}
+            {formatGermanDateLong(challengeEnd)}
+          </p>
+        </section>
+      )}
+
+      {/* Regeln Section - Collapsible */}
+      <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
+        <button
+          onClick={() => setRulesOpen((prev) => !prev)}
+          className="w-full flex justify-between items-center text-gray-800 font-semibold text-lg mb-3 focus:outline-none"
+        >
+          <span>📜 Regeln</span>
+          <span className="ml-2 text-gray-500">{rulesOpen ? "▲" : "▼"}</span>
+        </button>
+
+        {rulesOpen && (
+          <div className="text-gray-700 text-sm leading-relaxed mt-2">
+            {/* Example placeholder rules, replace later */}
+            <ul className="list-disc list-inside space-y-1">
+              <li>Punkte werden für verschiedene Aktivitäten vergeben.</li>
+              <li>Die Rangliste richtet sich nach der Gesamtpunktzahl.</li>
+              <li>
+                Am Ende der Challenge gewinnt der Athlet mit den meisten
+                Punkten.
+              </li>
+            </ul>
+          </div>
+        )}
+      </section>
+
       {/* Winner */}
-      {new Date().getTime() >= Date.UTC(2025, 10, 26, 20, 0, 0) &&
+      {challengeDone &&
+        challengeEnd &&
+        new Date().getTime() >= challengeEnd.getTime() &&
         athletes.length > 0 && (
           <section className="mb-10 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-xl shadow-md">
             <div className="flex items-center space-x-4">
@@ -134,7 +236,7 @@ export default function Home() {
         </table>
       </section>
 
-      {/* Aktivitäten als Tabs */}
+      {/* Aktivitäten */}
       <section className="mb-10 bg-gray-50 p-5 rounded-xl shadow-sm">
         <h2 className="text-xl font-semibold flex items-center mb-3 text-gray-800">
           🗓️ <span className="ml-2">Aktivitäten</span>
@@ -148,7 +250,7 @@ export default function Home() {
           {athletes.map((athlete) => (
             <button
               key={athlete.id}
-              onClick={() => handleToggle(athlete.id)}
+              onClick={() => handleToggleAthlete(athlete.id)}
               className={`capitalize px-4 py-2 rounded-full transition font-medium ${
                 activeAthleteId === athlete.id
                   ? "bg-sky-500 text-white"
@@ -211,7 +313,11 @@ export default function Home() {
         <h2 className="text-xl font-semibold flex items-center mb-3 text-gray-800">
           📈 <span className="ml-2">Punkteverlauf</span>
         </h2>
-        <PointsChart athletes={athletes} />
+        <PointsChart
+          athletes={athletes}
+          startDate={challengeStart}
+          endDate={challengeEnd}
+        />
       </section>
     </main>
   );
