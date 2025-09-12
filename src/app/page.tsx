@@ -167,21 +167,80 @@ export default function Home() {
           onClick={() => setRulesOpen((prev) => !prev)}
           className="w-full flex justify-between items-center text-gray-800 font-semibold text-lg mb-3 focus:outline-none"
         >
-          <span>📜 Regeln</span>
+          <span>📜 Challenge-Regeln</span>
           <span className="ml-2 text-gray-500">{rulesOpen ? "▲" : "▼"}</span>
         </button>
 
         {rulesOpen && (
-          <div className="text-gray-700 text-sm leading-relaxed mt-2">
-            {/* Example placeholder rules, replace later */}
-            <ul className="list-disc list-inside space-y-1">
-              <li>Punkte werden für verschiedene Aktivitäten vergeben.</li>
-              <li>Die Rangliste richtet sich nach der Gesamtpunktzahl.</li>
-              <li>
-                Am Ende der Challenge gewinnt der Athlet mit den meisten
-                Punkten.
-              </li>
-            </ul>
+          <div className="text-gray-700 text-sm leading-relaxed mt-2 space-y-4">
+            {/* 📅 Allgemeines */}
+            <div>
+              <h3 className="text-base font-semibold flex items-center mb-1">
+                📅 <span className="ml-2">Allgemeines</span>
+              </h3>
+              <p>
+                <strong>Tagesaktuelle Meldung:</strong> Alle Aktivitäten müssen
+                am selben Tag in die Gruppe gepostet werden.
+              </p>
+            </div>
+
+            {/* 🏃‍♂️ Laufen */}
+            <div>
+              <h3 className="text-base font-semibold flex items-center mb-1">
+                🏃‍♂️ <span className="ml-2">Laufen</span>
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Punktevergabe: 3 Punkte pro gelaufenem Kilometer</li>
+                <li>Mindeststrecke: 1 km</li>
+                <li>Mindestpace: 8:00 Minuten pro Kilometer</li>
+              </ul>
+            </div>
+
+            {/* 🚴‍♀️ Radfahren */}
+            <div>
+              <h3 className="text-base font-semibold flex items-center mb-1">
+                🚴‍♀️ <span className="ml-2">Radfahren</span>
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Punktevergabe: 1 Punkt pro gefahrenem Kilometer</li>
+                <li>Mindeststrecke: 5 km</li>
+                <li>Mindestdurchschnittsgeschwindigkeit: 17 km/h</li>
+              </ul>
+            </div>
+
+            {/* 🏋️‍♂️ Fitnessgeräte */}
+            <div>
+              <h3 className="text-base font-semibold flex items-center mb-1">
+                🏋️‍♂️ <span className="ml-2">Nutzung von Fitnessgeräten</span>
+              </h3>
+              <p className="mb-2">
+                Fitnessgeräte wie Laufband, Ergometer, Hometrainer usw. sind
+                grundsätzlich erlaubt, wenn:
+              </p>
+              <ul className="list-disc list-inside space-y-1 mb-2">
+                <li>die gemessenen Werte plausibel und nachvollziehbar sind</li>
+                <li>
+                  sie den Regeln der entsprechenden Sportart entsprechen (z. B.
+                  Mindestpace beim Laufen, Mindestgeschwindigkeit beim
+                  Radfahren)
+                </li>
+              </ul>
+            </div>
+
+            {/* 🚫 Nicht erlaubt */}
+            <div>
+              <h3 className="text-base font-semibold flex items-center mb-1">
+                🚫 <span className="ml-2">Nicht erlaubt</span>
+              </h3>
+              <ul className="list-disc list-inside space-y-1">
+                <li>E-Bikes</li>
+                <li>
+                  Aktivitäten ohne Einhaltung der Mindestanforderungen (z. B. zu
+                  langsame Pace, zu kurze Strecken)
+                </li>
+                <li>Unplausible oder nicht nachvollziehbare Angaben</li>
+              </ul>
+            </div>
           </div>
         )}
       </section>
